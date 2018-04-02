@@ -23,25 +23,19 @@ module.exports = function(chunkName) {
     return
   }
 
-  if (ADDED[href] === 'pending') {
-    return Promise.reject();
-  }
   if (ADDED[href] === 'resolved') {
     return Promise.resolve();
   }
 
-  ADDED[href] = 'pending';
+  // is a promise and status is pending
+  if (typeof ADDED[href] === 'object' && ADDED[href].status === 'pending') {
+    return ADDED[href].promise;
+  }
 
   var head = document.getElementsByTagName('head')[0]
   var link = document.createElement('link')
 
-  link.href = href
-  link.charset = 'utf-8'
-  link.type = 'text/css'
-  link.rel = 'stylesheet'
-  link.timeout = 30000
-
-  return new Promise(function(resolve, reject) {
+  const p = new Promise(function(resolve, reject) {
     var timeout
 
     link.onerror = function() {
@@ -66,6 +60,15 @@ module.exports = function(chunkName) {
     head.appendChild(link)
     img.src = href
   })
+
+  ADDED[href] = {status: 'pending', promise: p};
+  link.href = href
+  link.charset = 'utf-8'
+  link.type = 'text/css'
+  link.rel = 'stylesheet'
+  link.timeout = 30000
+
+  return p;
 }
 
 function getHref(chunkName) {
