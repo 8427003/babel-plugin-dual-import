@@ -34,6 +34,11 @@ module.exports = function(chunkName) {
 
   var head = document.getElementsByTagName('head')[0]
   var link = document.createElement('link')
+  link.href = href
+  link.charset = 'utf-8'
+  link.type = 'text/css'
+  link.rel = 'stylesheet'
+  link.timeout = 30000
 
   const p = new Promise(function(resolve, reject) {
     var timeout
@@ -61,12 +66,7 @@ module.exports = function(chunkName) {
     img.src = href
   })
 
-  ADDED[href] = {status: 'pending', promise: p};
-  link.href = href
-  link.charset = 'utf-8'
-  link.type = 'text/css'
-  link.rel = 'stylesheet'
-  link.timeout = 30000
+  ADDED[href] = {status: 'pending', promise: p}
 
   return p;
 }
